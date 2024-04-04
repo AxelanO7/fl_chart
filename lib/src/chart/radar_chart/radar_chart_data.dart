@@ -70,6 +70,7 @@ class RadarChartData extends BaseChartData with EquatableMixin {
     BorderSide? tickBorderData,
     BorderSide? gridBorderData,
     RadarTouchData? radarTouchData,
+    double? maximumValue,
     super.borderData,
   })  : assert(dataSets != null && dataSets.hasEqualDataEntriesLength),
         assert(
@@ -91,9 +92,13 @@ class RadarChartData extends BaseChartData with EquatableMixin {
         tickCount = tickCount ?? 1,
         tickBorderData = tickBorderData ?? const BorderSide(width: 2),
         gridBorderData = gridBorderData ?? const BorderSide(width: 2),
+        maximumValue = maximumValue ?? 0,
         super(
           touchData: radarTouchData ?? RadarTouchData(),
         );
+
+  /// [maximumValue] is used to determine the maximum value of ticks.
+  final double maximumValue;
 
   /// [RadarChart] draw [dataSets] that each of them showing a list of [RadarEntry]
   final List<RadarDataSet> dataSets;
@@ -162,9 +167,13 @@ class RadarChartData extends BaseChartData with EquatableMixin {
   RadarEntry get maxEntry {
     var maximum = dataSets.first.dataEntries.first;
 
-    for (final dataSet in dataSets) {
-      for (final entry in dataSet.dataEntries) {
-        if (entry.value > maximum.value) maximum = entry;
+    if (maximumValue != 0) {
+      maximum = RadarEntry(value: maximumValue);
+    } else {
+      for (final dataSet in dataSets) {
+        for (final entry in dataSet.dataEntries) {
+          if (entry.value > maximum.value) maximum = entry;
+        }
       }
     }
     return maximum;
